@@ -1,0 +1,16 @@
+server:
+  port: 9090  # Spring boot Server port
+
+spring:
+    mybatis:
+        configuration:
+            lazy-loading-enabled: true
+            aggressive-lazy-loading: false
+            map-underscore-to-camel-case: true
+    h2:
+        console:
+            enabled: true  # H2 웹 콘솔을 사용하겠다는 의미
+            path: /demo_db  # 콘솔의 경로
+
+mybatis:
+        type-aliases-package: com.securities.demo.common

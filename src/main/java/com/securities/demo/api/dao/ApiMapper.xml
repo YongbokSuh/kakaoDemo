@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.securities.demo.api.dao.ApiMapper">
+	<!-- 1번 문제 -->
+    <select id="getTopCustomerByYear" resultType="daoResultMap">
+        SELECT  A.year, B.ACCOUNT_NAME as name, A.acctNo, A.sumAmt
+	        FROM (SELECT 
+				  B.year AS year,
+				  A.ACCOUNT_NUMBER AS acctNo, 
+				  SUM(A.AMOUNT_OF_MONEY - A.FEES ) as sumAmt, 
+				  Rank() OVER (partition by B.year order by SUM(A.AMOUNT_OF_MONEY - A.FEES ) desc) AS RANKNUM 
+				FROM TRANSACTION_HISTORY  A, (Select SubString(TRANSACTION_DATE,0,4) as year from TRANSACTION_HISTORY group by SubString(TRANSACTION_DATE,0,4)) B
+			where A.STATUS != 'Y' and (SubString(A.TRANSACTION_DATE,0,4) = '2018' or SubString(A.TRANSACTION_DATE,0,4)  = '2019') and SubString(A.TRANSACTION_DATE,0,4) = B.year
+			group by B.year, A.ACCOUNT_NUMBER ) A, ACCOUNT_INFO B
+		WHERE A.RANKNUM =1 and A.acctNo = B.ACCOUNT_NUMBER
+		ORDER BY A.year ASC
+    </select>
+    
+    <!-- 2번 문제 -->
+    <select id="getNoDealCustomerByYear" resultType="daoResultMap">
+        SELECT A.ACCOUNT_NUMBER as acctNo , A.ACCOUNT_NAME as name ,'2018' as year
+		FROM ACCOUNT_INFO A 
+		left outer JOIN ( 
+		select SubString(TRANSACTION_DATE,0,4) as date,ACCOUNT_NUMBER 
+		from TRANSACTION_HISTORY 
+		where STATUS != 'Y' and SubString(TRANSACTION_DATE,0,4) ='2018'
+		group by SubString(TRANSACTION_DATE,0,4), ACCOUNT_NUMBER 
+		) B 
+		ON A.ACCOUNT_NUMBER =B.ACCOUNT_NUMBER 
+		where B.date is null
+UNION ALL
+		SELECT A.ACCOUNT_NUMBER as acctNo , A.ACCOUNT_NAME as name ,'2019' as year
+		FROM ACCOUNT_INFO A 
+		left outer JOIN ( 
+		select SubString(TRANSACTION_DATE,0,4) as date,ACCOUNT_NUMBER 
+		from TRANSACTION_HISTORY 
+		where STATUS != 'Y' and SubString(TRANSACTION_DATE,0,4) ='2019'
+		group by SubString(TRANSACTION_DATE,0,4), ACCOUNT_NUMBER 
+		) B 
+		ON A.ACCOUNT_NUMBER =B.ACCOUNT_NUMBER 
+		where B.date is null
+    </select>
+    
+    <!-- 3번 문제 -->
+    <select id="getTopStoreByYear" resultType="daoResultMap">
+        select 
+		   SubString(TRANSACTION_DATE,0,4) as year, J.STORE_NAME as brName, J.Store_code as brCode, SUM(H.AMOUNT_OF_MONEY - H.FEES ) as sumVal, 
+		from TRANSACTION_HISTORY H
+		left join 
+		(select A.ACCOUNT_NUMBER ,B.STORE_CODE ,B.STORE_NAME  from ACCOUNT_INFO A, MANAGEMENT_STORE_INFO  B
+		where A.STORE_CODE = B.STORE_CODE ) J
+		on H.ACCOUNT_NUMBER  = J.ACCOUNT_NUMBER 
+		where STATUS != 'Y' 
+		group by year, J.Store_code
+		order by year asc , sumVal desc
+    </select>
+    
+    <select id="getDealYear" resultType="daoResultMap">
+        select 
+		   SubString(TRANSACTION_DATE,0,4) as year
+		from TRANSACTION_HISTORY H
+		where STATUS != 'Y' 
+		group by year
+		order by year asc
+    </select>
+    
+    <!-- 4번 문제 -->
+    <select id="getSumValByStore" parameterType="map" resultType="daoResultMap">
+        select 
+		   J.STORE_NAME as brName, J.Store_code as brCode, SUM(H.AMOUNT_OF_MONEY - H.FEES ) as sumVal, 
+		from TRANSACTION_HISTORY H
+		right join 
+		(select A.ACCOUNT_NUMBER ,B.STORE_CODE ,B.STORE_NAME from ACCOUNT_INFO A, MANAGEMENT_STORE_INFO  B
+		where A.STORE_CODE = B.STORE_CODE and B.STORE_NAME  = #{brName}) J
+		on H.ACCOUNT_NUMBER  = J.ACCOUNT_NUMBER 
+		where STATUS != 'Y' 
+		group by  J.Store_code
+    </select>
+    
+    <select id="getStoreSatus" parameterType="map" resultType="daoResultMap">
+        SELECT STORE_CODE ,STORE_NAME ,USE_STATUS FROM MANAGEMENT_STORE_INFO 
+        WHERE STORE_NAME  = #{brName}
+    </select>
+
+
+
+    
+</mapper>
