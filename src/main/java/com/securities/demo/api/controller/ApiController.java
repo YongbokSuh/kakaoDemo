@@ -32,22 +32,23 @@ public class ApiController {
         return "Hello, World";
     }
     
+    //1번 문제
     @GetMapping("/getTopCustomerByYear")
     public List<Map<String, Object>> getTopCustomerByYear() {
         return apiService.getTopCustomerByYear();
     }
-    
+    //2번 문제    
     @GetMapping("/getNoDealCustomerByYear")
     public List<Map<String, Object>> getNoDealCustomerByYear() {
         return apiService.getNoDealCustomerByYear();
     }
     
-    
+    //3번 문제
     @GetMapping("/getTopStoreByYear")
     public List<Map<String, Object>> getTopStoreByYear() {
         return apiService.getTopStoreByYear();
     }
-    
+    //4번 문제
     @PostMapping("/getSumValByStore")
     public Map<String, Object> getSumValByStore(HttpServletResponse response, @RequestParam Map<String, Object> param) {
     	Map<String, Object> map = new HashMap<String, Object>();

@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.securities.demo.common.DaoResultMap;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,30 +40,14 @@ class ApiControllerTest {
 			mockMvc.perform(get("/api/test")).andDo(print()).andExpect(status().isOk())
 					.andExpect(content().string(containsString("Hello, World")));
 		}
-//		
-//	    @Test
-//	    public void testGetTopCustomerByYear() throws Exception {
-//	    	List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
-//	    	
-//	    	Map<String, Object> map = new DaoResultMap<String, Object>();
-//	    	map.put("year", "2018");
-//	    	map.put("name", "테드");
-//	    	map.put("acctno", "11111114");
-//	    	map.put("sumamt", 28992000);
-//	    	
-//	    	Map<String, Object> map2 = new HashMap<String, Object>();
-//	    	map2.put("year", "2019");
-//	    	map2.put("name", "에이스");
-//	    	map2.put("acctno", "11111112");
-//	    	map2.put("sumamt", "40998400");
-//	    	
-//	    	list.add(map);
-//	    	list.add(map2);
-//	    	
-//	    	List<Map<String, Object>>  result = apiController.getTopCustomerByYear();
-//	    	
-//	    	assertEquals(list.get(0).get("name"), result.get(0).get("name"));
-//	    }
-
+		
+		@Test
+		void test() {
+			List<Map<String, Object>> result = apiController.getTopCustomerByYear();
+	    	
+			assertThat(result)
+	        .isNotEmpty()
+	        .hasSize(2);
+		}
 
 }
